@@ -1,0 +1,8 @@
+.git
+.github
+.devcontainer
+docs
+k6
+node_modules
+*.md
+*.log

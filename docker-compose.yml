@@ -1,0 +1,38 @@
+# Start the service:      docker compose up -d --build
+# Run a test with k6:     docker compose run --rm --service-ports k6 run /scripts/load.js
+# Stop everything:        docker compose down
+
+services:
+  app:
+    build: .
+    image: certificate-lab
+    ports:
+      - "3000:3000"
+    environment:
+      HOST: 0.0.0.0
+      PORT: "3000"
+      ADMIN_KEY: ${ADMIN_KEY:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # k6 only runs when you ask for it (it's in the "tools" profile)
+  k6:
+    image: grafana/k6:latest
+    profiles: ["tools"]
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://app:3000
+      K6_WEB_DASHBOARD: "true"
+      K6_WEB_DASHBOARD_HOST: 0.0.0.0
+      K6_NO_USAGE_REPORT: "true"
+    ports:
+      - "5665:5665"
+    volumes:
+      - ./k6:/scripts:ro
+    command: ["run", "/scripts/load.js"]

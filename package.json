@@ -1,0 +1,16 @@
+{
+  "name": "certificate-lab",
+  "version": "1.0.0",
+  "description": "A mock university certificate service to practise testing against CTQs with k6. Built for a Lean Six Sigma (DMADV) workshop.",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "smoke": "k6 run k6/smoke.js",
+    "load": "k6 run k6/load.js",
+    "spike": "k6 run k6/spike.js"
+  }
+}

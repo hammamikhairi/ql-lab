@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ops dashboard · Certificate Lab</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="ops">
+  <header class="topbar">
+    <a class="brand" href="/dashboard"><span class="logo">DU</span> Certificate service <span class="muted">· ops dashboard</span></a>
+    <div class="row">
+      <span class="live"><span class="dot" id="live-dot"></span><span id="live-text">live</span></span>
+      <a class="link-btn" href="/">open the student portal</a>
+    </div>
+  </header>
+
+  <div class="ops-grid">
+    <main>
+      <div class="ctq-row">
+        <div class="ctq idle" id="ctq-speed">
+          <div class="label">CTQ · 95% of PDFs in under 3 s</div>
+          <div class="verdict" id="ctq-speed-verdict">waiting for traffic</div>
+          <div class="detail" id="ctq-speed-detail">last 10 seconds</div>
+        </div>
+        <div class="ctq idle" id="ctq-errors">
+          <div class="label">CTQ · under 1% of requests fail</div>
+          <div class="verdict" id="ctq-errors-verdict">waiting for traffic</div>
+          <div class="detail" id="ctq-errors-detail">last 10 seconds</div>
+        </div>
+      </div>
+
+      <div class="tiles">
+        <div class="tile"><div class="k">requests per second</div><div class="v" id="t-rps">0</div></div>
+        <div class="tile"><div class="k">PDF time, 95% under</div><div class="v" id="t-p95">–</div></div>
+        <div class="tile"><div class="k">failed, last 10 s</div><div class="v" id="t-err">0</div></div>
+        <div class="tile"><div class="k">“we’ll email it”, last 10 s</div><div class="v" id="t-queued">0</div></div>
+        <div class="tile"><div class="k">PDFs being made now</div><div class="v" id="t-gen">0</div></div>
+        <div class="tile"><div class="k">students waiting in line</div><div class="v" id="t-wait">0</div></div>
+      </div>
+
+      <div class="charts">
+        <div class="panel chart">
+          <div class="head"><h2>requests per second</h2><span id="c-rps-max"></span></div>
+          <svg id="chart-rps" viewBox="0 0 600 170" preserveAspectRatio="none" role="img" aria-label="Requests per second over the last 60 seconds"></svg>
+          <div class="axis"><span>60 s ago</span><span>now</span></div>
+        </div>
+        <div class="panel chart">
+          <div class="head"><h2>PDF time, 95% under (seconds)</h2><span>dashed line = 3 s CTQ</span></div>
+          <svg id="chart-p95" viewBox="0 0 600 170" preserveAspectRatio="none" role="img" aria-label="95th percentile PDF time over the last 60 seconds, with the 3 second CTQ line"></svg>
+          <div class="axis"><span>60 s ago</span><span id="c-p95-max"></span><span>now</span></div>
+        </div>
+      </div>
+
+      <div class="panel" id="howto">
+        <p class="eyebrow">run a test</p>
+        <h2>Point k6 at this server</h2>
+        <div class="cmd"><span>docker run --rm --network host -v "$PWD/k6:/scripts:ro" grafana/k6:latest run /scripts/smoke.js</span><button type="button" data-copy>copy</button></div>
+        <div class="cmd"><span>docker run --rm --network host -v "$PWD/k6:/scripts:ro" grafana/k6:latest run /scripts//load.js</span><button type="button" data-copy>copy</button></div>
+        <div class="cmd"><span>docker run --rm --network host -v "$PWD/k6:/scripts:ro" grafana/k6:latest run /scripts//spike.js</span><button type="button" data-copy>copy</button></div>
+        <p class="muted">Testing another machine? Add <code>-e BASE_URL=http://its-address:3000</code>. Using Docker? See the README.</p>
+      </div>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <p class="eyebrow">scenario</p>
+        <h2>What kind of day is it?</h2>
+        <div class="presets" id="presets"></div>
+      </div>
+
+      <div class="panel">
+        <p class="eyebrow">design knobs</p>
+        <h2>Change the design live</h2>
+        <div class="knob">
+          <div class="top"><span>PDF workers</span><b id="v-workers"></b></div>
+          <input type="range" id="k-workers" min="1" max="200" step="1">
+          <div class="help">how many PDFs we can make at the same time (more servers = more workers)</div>
+        </div>
+        <div class="knob">
+          <div class="top"><span>time to make one PDF</span><b id="v-pdfDelayMs"></b></div>
+          <input type="range" id="k-pdfDelayMs" min="20" max="2000" step="10">
+        </div>
+        <div class="knob">
+          <div class="top"><span>give up after waiting</span><b id="v-giveUpMs"></b></div>
+          <input type="range" id="k-giveUpMs" min="500" max="15000" step="100">
+          <div class="help">after this, the student gets “server busy”</div>
+        </div>
+        <div class="knob">
+          <div class="top"><span>random crashes</span><b id="v-failurePct"></b></div>
+          <input type="range" id="k-failurePct" min="0" max="20" step="0.1">
+        </div>
+        <div class="knob">
+          <div class="top"><span>when we’re too busy</span></div>
+          <div class="seg">
+            <button type="button" id="mode-normal">show an error</button>
+            <button type="button" id="mode-queue">queue it + email it</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="eyebrow">bugs, for verification</p>
+        <h2>Sneak a bug in</h2>
+        <label class="switch"><input type="checkbox" id="bug-access">
+          <span>Break access control<small>anyone can open anyone’s certificate</small></span></label>
+        <label class="switch"><input type="checkbox" id="bug-name">
+          <span>Break student names<small>certificates use an old record with a typo</small></span></label>
+        <p class="muted">Then run <code>k6 run k6/smoke.js</code> and see which check catches it.</p>
+      </div>
+
+      <div class="panel">
+        <div class="row space">
+          <button class="btn secondary" type="button" id="reset">Reset the charts</button>
+        </div>
+        <div id="admin-box" hidden>
+          <label for="admin-key">Admin key</label>
+          <input type="password" id="admin-key" placeholder="needed to change the knobs">
+        </div>
+        <div class="toast" id="toast" role="status"></div>
+      </div>
+    </aside>
+  </div>
+  <script src="/dashboard.js"></script>
+</body>
+</html>

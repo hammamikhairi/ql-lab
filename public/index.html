@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student portal · Certificate Lab</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="logo">DU</span> Demo University <span class="muted">· student portal</span></a>
+    <div class="who" id="who"></div>
+  </header>
+
+  <main class="wrap">
+    <!-- 1. log in -->
+    <section id="view-login" class="card narrow" hidden>
+      <p class="eyebrow">student portal</p>
+      <h1>Log in</h1>
+      <p class="muted">This is a mock portal for a workshop. Pick one of the demo students.</p>
+      <form id="login-form" autocomplete="off">
+        <label for="student-id">Student ID</label>
+        <input id="student-id" type="text" list="student-list" placeholder="S10000" required>
+        <datalist id="student-list"></datalist>
+        <button class="btn block" type="submit" id="login-btn">Log in</button>
+      </form>
+      <p class="error" id="login-error" role="alert"></p>
+      <p class="hint">Any ID from <code>S10000</code> to <code>S11999</code> works. IDs ending in 9 (like <code>S10009</code>) are not eligible for a certificate yet.</p>
+    </section>
+
+    <!-- 2. home -->
+    <section id="view-home" hidden>
+      <div class="card">
+        <div class="row space">
+          <p class="eyebrow">dashboard</p>
+          <span class="clicks" id="clicks-home"></span>
+        </div>
+        <h1 id="hello">Hi</h1>
+        <p class="muted" id="program"></p>
+        <div id="home-actions"></div>
+      </div>
+    </section>
+
+    <!-- 3. documents -->
+    <section id="view-docs" hidden>
+      <div class="card">
+        <div class="row space">
+          <p class="eyebrow">my documents</p>
+          <span class="clicks" id="clicks-docs"></span>
+        </div>
+        <h1>My documents</h1>
+        <ul class="doc-list" id="doc-list"></ul>
+        <p><button class="link-btn" type="button" data-back="home">Back to dashboard</button></p>
+      </div>
+    </section>
+
+    <!-- 4. certificate -->
+    <section id="view-cert" hidden>
+      <div class="card">
+        <div class="row space">
+          <p class="eyebrow">your certificate</p>
+          <span class="clicks" id="clicks-cert"></span>
+        </div>
+        <div class="certificate" id="certificate">
+          <p class="muted">Demo University</p>
+          <h2>Certificate of enrollment</h2>
+          <p>This certifies that</p>
+          <p class="name" id="cert-name"></p>
+          <p>is enrolled in <strong id="cert-program"></strong> for the <span id="cert-year"></span> academic year.</p>
+          <p class="muted">Verification code <span class="code" id="cert-code"></span></p>
+        </div>
+        <div class="row actions">
+          <button class="btn" type="button" id="download-btn">Download PDF</button>
+          <a class="btn secondary" id="verify-link" href="/verify">Check it like an employer would</a>
+        </div>
+        <div id="pdf-status" role="status"></div>
+        <p><button class="link-btn" type="button" data-back="docs">Back to my documents</button></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    Mock service for a DMADV workshop · <a href="/dashboard">ops dashboard</a> · <a href="/verify">verify a certificate</a>
+  </footer>
+  <script src="/portal.js"></script>
+</body>
+</html>

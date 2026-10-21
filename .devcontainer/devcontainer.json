@@ -1,0 +1,19 @@
+{
+  "name": "Certificate Lab",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bookworm",
+  "postCreateCommand": "bash .devcontainer/install-k6.sh",
+  "containerEnv": {
+    "HOST": "0.0.0.0",
+    "K6_WEB_DASHBOARD_HOST": "0.0.0.0"
+  },
+  "forwardPorts": [3000, 5665],
+  "portsAttributes": {
+    "3000": { "label": "Certificate Lab", "onAutoForward": "openBrowser" },
+    "5665": { "label": "k6 web dashboard", "onAutoForward": "notify" }
+  },
+  "customizations": {
+    "codespaces": {
+      "openFiles": ["README.md"]
+    }
+  }
+}
